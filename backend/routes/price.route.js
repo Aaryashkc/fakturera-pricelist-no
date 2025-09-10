@@ -1,10 +1,10 @@
 import express from 'express';
-import { createPriceItem, getAllPrices } from '../controller/price.controller.js';
+import { createPrice, getAllPrices } from '../controller/price.controller.js';
 
 const router= express.Router()
 
 router.get('/', getAllPrices);
-router.post('/', createPriceItem);
+router.post('/', createPrice);
 
 
 export default router;

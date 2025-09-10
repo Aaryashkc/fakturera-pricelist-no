@@ -10,26 +10,25 @@ export const getAllPrices = async (req, res) => {
   }
 };
 
-export const createPriceItem = async (req, res) => {
+export const createPrice = async (req, res) => {
   try {
     const { articleNo, productService, inPrice, price, unit, inStock, description } = req.body;
 
-    const newItem = await PriceList.create({
+    const newPrice = await PriceList.create({
       articleNo,
       productService,
       inPrice,
       price,
       unit,
       inStock,
-      description,
+      description
     });
 
     res.status(201).json({
-      message: "Price item created successfully",
-      data: newItem,
+      success: true,
+      data: newPrice
     });
   } catch (error) {
-    console.error("Error creating price item:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
