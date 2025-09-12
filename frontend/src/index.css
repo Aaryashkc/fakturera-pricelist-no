@@ -519,6 +519,19 @@
       .table-row .col:nth-child(7) {   /* Hide Description */
         display: none;
       }
+
+      /* Tablet behavior: stack search inputs vertically */
+      .search-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      /* Align function buttons to the right in a horizontal row */
+      .toolbar {
+        margin-left: auto;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
+      }
     }
 
     /* Small screens (sm) - 640px and up */
