@@ -24,6 +24,47 @@ import {
 } from 'lucide-react';
 import usePriceStore from '../store/usePriceStore';
 
+// Hoisted to avoid remounts that cause input focus loss on each keystroke
+const SearchSection = ({ searchArticle, setSearchArticle, searchProduct, setSearchProduct }) => (
+  <div className="search-section">
+    <div className="search-container">
+      <div className="search-box">
+        <input 
+          type="text" 
+          placeholder="Search Article No ..."
+          value={searchArticle}
+          onChange={(e) => setSearchArticle(e.target.value)}
+        />
+        <Search className="search-icon" size={20} />
+      </div>
+      <div className="search-box">
+        <input 
+          type="text" 
+          placeholder="Search Product ..."
+          value={searchProduct}
+          onChange={(e) => setSearchProduct(e.target.value)}
+        />
+        <Search className="search-icon" size={20} />
+      </div>
+    </div>
+    
+    <div className="toolbar">
+      <button className="toolbar-btn new-btn">
+        <Plus size={16} />
+        <span className="toolbar-text">New Product</span>
+      </button>
+      <button className="toolbar-btn">
+        <FileText size={16} />
+        <span className="toolbar-text">Print List</span>
+      </button>
+      <button className="toolbar-btn">
+        <Settings size={16} />
+        <span className="toolbar-text">Advanced mode</span>
+      </button>
+    </div>
+  </div>
+);
+
 const PriceList = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchArticle, setSearchArticle] = useState('');
@@ -50,6 +91,16 @@ const PriceList = () => {
     unit: item.unit || 'pcs',
     description: item.description || ''
   }));
+
+  // Apply filters from search inputs
+  const filteredProducts = products.filter(p => {
+    const articleQuery = (searchArticle || '').trim().toLowerCase();
+    const productQuery = (searchProduct || '').trim().toLowerCase();
+
+    const matchesArticle = !articleQuery || String(p.id).toLowerCase().includes(articleQuery);
+    const matchesProduct = !productQuery || String(p.name).toLowerCase().includes(productQuery);
+    return matchesArticle && matchesProduct;
+  });
 
   const menuItems = [
     { icon: FileText, label: 'Invoices', color: '#22d3ee' },
@@ -310,45 +361,7 @@ const PriceList = () => {
     </div>
   );
 
-  const SearchSection = () => (
-    <div className="search-section">
-      <div className="search-container">
-        <div className="search-box">
-          <input 
-            type="text" 
-            placeholder="Search Article No ..."
-            value={searchArticle}
-            onChange={(e) => setSearchArticle(e.target.value)}
-          />
-          <Search className="search-icon" size={20} />
-        </div>
-        <div className="search-box">
-          <input 
-            type="text" 
-            placeholder="Search Product ..."
-            value={searchProduct}
-            onChange={(e) => setSearchProduct(e.target.value)}
-          />
-          <Search className="search-icon" size={20} />
-        </div>
-      </div>
-      
-      <div className="toolbar">
-        <button className="toolbar-btn new-btn">
-          <Plus size={16} />
-          <span className="toolbar-text">New Product</span>
-        </button>
-        <button className="toolbar-btn">
-          <FileText size={16} />
-          <span className="toolbar-text">Print List</span>
-        </button>
-        <button className="toolbar-btn">
-          <Settings size={16} />
-          <span className="toolbar-text">Advanced mode</span>
-        </button>
-      </div>
-    </div>
-  );
+  
 
   const ProductTable = () => {
     const columns = ['Article No.', 'Product/Service', 'In Price', 'Price', 'Unit', 'In Stock', 'Description', ''];
@@ -389,23 +402,31 @@ const PriceList = () => {
             <div key={index} className="col">{col}</div>
           ))}
         </div>
-        {products.map((product, index) => (
-          <div key={product.id} className="table-row">
-            <div className="col">{renderCellContent(product, 'id', product.id)}</div>
-            <div className="col">{renderCellContent(product, 'name', product.name)}</div>
-            <div className="col">{renderCellContent(product, 'inPrice', product.inPrice)}</div>
-            <div className="col">{renderCellContent(product, 'price', product.price)}</div>
-            <div className="col">{renderCellContent(product, 'unit', product.unit)}</div>
-            <div className="col">{renderCellContent(product, 'inStock', product.inStock)}</div>
-            <div className="col">{renderCellContent(product, 'description', product.description)}</div>
-            <div className="col">
-              <ActionDropdown
-                product={product}
-                detailsOpen={showDetailsModal && selectedProduct?.id === product.id}
-              />
+        {filteredProducts.length === 0 ? (
+          <div className="table-row">
+            <div className="col" style={{ gridColumn: '1 / -1', color: '#64748b' }}>
+              No matching products. Adjust your search.
             </div>
           </div>
-        ))}
+        ) : (
+          filteredProducts.map((product) => (
+            <div key={product.id} className="table-row">
+              <div className="col">{renderCellContent(product, 'id', product.id)}</div>
+              <div className="col">{renderCellContent(product, 'name', product.name)}</div>
+              <div className="col">{renderCellContent(product, 'inPrice', product.inPrice)}</div>
+              <div className="col">{renderCellContent(product, 'price', product.price)}</div>
+              <div className="col">{renderCellContent(product, 'unit', product.unit)}</div>
+              <div className="col">{renderCellContent(product, 'inStock', product.inStock)}</div>
+              <div className="col">{renderCellContent(product, 'description', product.description)}</div>
+              <div className="col">
+                <ActionDropdown
+                  product={product}
+                  detailsOpen={showDetailsModal && selectedProduct?.id === product.id}
+                />
+              </div>
+            </div>
+          ))
+        )}
       </div>
     );
   };
@@ -484,7 +505,12 @@ const PriceList = () => {
         <Sidebar />
         
         <div className="content">
-          <SearchSection />
+          <SearchSection 
+            searchArticle={searchArticle}
+            setSearchArticle={setSearchArticle}
+            searchProduct={searchProduct}
+            setSearchProduct={setSearchProduct}
+          />
           <ProductTable />
         </div>
       </div>

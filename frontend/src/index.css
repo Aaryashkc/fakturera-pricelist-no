@@ -597,11 +597,15 @@
         display: inline-flex;
       }
 
-      /* Hide user elements so only hamburger shows */
+      /* Hide user elements on small screens, but keep language selector fully visible */
       .user-details,
-      .avatar,
-      .language-selector {
+      .avatar {
         display: none;
+      }
+      .language-selector {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
       }
     }
 
