@@ -48,19 +48,22 @@ const SearchSection = ({ searchArticle, setSearchArticle, searchProduct, setSear
       </div>
     </div>
     
-    <div className="toolbar">
+    <div className="toolbar" >
+      <div className='btn-round'>
       <button className="toolbar-btn new-btn">
         <Plus size={16} />
-        <span className="toolbar-text">New Product</span>
       </button>
+      </div>
+      <div className='btn-round'>
       <button className="toolbar-btn">
         <FileText size={16} />
-        <span className="toolbar-text">Print List</span>
       </button>
+      </div>
+      <div className='btn-round'>
       <button className="toolbar-btn">
         <Settings size={16} />
-        <span className="toolbar-text">Advanced mode</span>
       </button>
+      </div>
     </div>
   </div>
 );
@@ -367,32 +370,40 @@ const PriceList = () => {
     const columns = ['Article No.', 'Product/Service', 'In Price', 'Price', 'Unit', 'In Stock', 'Description', ''];
 
     const renderCellContent = (product, field, content) => {
-      const key = `${product.id}-${field}`;
-      const isExpanded = expandedCells[key];
-      const shouldTruncate = field === 'description' || field === 'name';
+      if (!content) return <span></span>;
       
-      if (!shouldTruncate) {
-        return <span>{content}</span>;
+      if (field === 'description') {
+        return (
+          <div className="cell-content description-cell">
+            <span className="truncated">{content}</span>
+          </div>
+        );
       }
-
-      const needsTruncation = content.length > 20;
-
-      return (
-        <div className="cell-content">
-          <span className={isExpanded ? 'expanded' : 'truncated'}>
-            {content}
-          </span>
-          {needsTruncation && (
-            <button 
-              className="expand-btn"
-              onClick={() => toggleCellExpansion(product.id, field)}
-              title={isExpanded ? 'Collapse' : 'Expand'}
-            >
-              {isExpanded ? '▲' : '...'}
-            </button>
-          )}
-        </div>
-      );
+      
+      if (field === 'name') {
+        const key = `${product.id}-${field}`;
+        const isExpanded = expandedCells[key];
+        const needsTruncation = content.length > 30;
+        
+        return (
+          <div className="cell-content">
+            <span className={isExpanded ? 'expanded' : 'truncated'}>
+              {content}
+            </span>
+            {needsTruncation && (
+              <button 
+                className="expand-btn"
+                onClick={() => toggleCellExpansion(product.id, field)}
+                title={isExpanded ? 'Collapse' : 'Expand'}
+              >
+                {isExpanded ? '▲' : '...'}
+              </button>
+            )}
+          </div>
+        );
+      }
+      
+      return <span>{content}</span>;
     };
 
     return (
@@ -411,14 +422,14 @@ const PriceList = () => {
         ) : (
           filteredProducts.map((product) => (
             <div key={product.id} className="table-row">
-              <div className="col">{renderCellContent(product, 'id', product.id)}</div>
-              <div className="col">{renderCellContent(product, 'name', product.name)}</div>
-              <div className="col">{renderCellContent(product, 'inPrice', product.inPrice)}</div>
-              <div className="col">{renderCellContent(product, 'price', product.price)}</div>
-              <div className="col">{renderCellContent(product, 'unit', product.unit)}</div>
-              <div className="col">{renderCellContent(product, 'inStock', product.inStock)}</div>
-              <div className="col">{renderCellContent(product, 'description', product.description)}</div>
-              <div className="col">
+              <div className="col border-row">{renderCellContent(product, 'id', product.id)}</div>
+              <div className="col border-row">{renderCellContent(product, 'name', product.name)}</div>
+              <div className="col border-row">{renderCellContent(product, 'inPrice', product.inPrice)}</div>
+              <div className="col border-row">{renderCellContent(product, 'price', product.price)}</div>
+              <div className="col border-row">{renderCellContent(product, 'unit', product.unit)}</div>
+              <div className="col border-row">{renderCellContent(product, 'inStock', product.inStock)}</div>
+              <div className="col border-row">{renderCellContent(product, 'description', product.description)}</div>
+              <div className="col1">
                 <ActionDropdown
                   product={product}
                   detailsOpen={showDetailsModal && selectedProduct?.id === product.id}
@@ -447,7 +458,7 @@ const PriceList = () => {
     );
   };
 
-  // Loading state
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">

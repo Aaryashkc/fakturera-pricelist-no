@@ -171,17 +171,22 @@
 
     .toolbar {
       display: flex;
+      margin-left: 5px;
       gap: 12px;
       flex-wrap: wrap;
     }
 
     .toolbar-btn {
       background: white;
+      width: 100px;
+      height: 40px;
       border: 1px solid #e2e8f0;
-      border-radius: 8px;
+      box-shadow: #4755691a 0px 1px 2px 0px;
+      border-radius: 20px;
       padding: 8px 16px;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       cursor: pointer;
       font-size: 14px;
@@ -192,13 +197,11 @@
 
     .toolbar-btn:hover {
       background: #f8fafc;
-      border-color: #22d3ee;
     }
 
     .toolbar-btn.new-btn {
       background: #10b981;
       color: white;
-      border-color: #10b981;
     }
 
     /* Product Table */
@@ -210,7 +213,6 @@
     }
 
     .table-header {
-      background: #f1f5f9;
       padding: 12px 16px;
       display: grid;
       grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 2fr 48px; 
@@ -218,7 +220,7 @@
       font-weight: 600;
       font-size: 12px;
       color: #475569;
-      border-bottom: 1px solid #e2e8f0;
+      /* border-bottom: 1px solid #e2e8f0; */
     }
 
     .table-row {
@@ -226,7 +228,6 @@
       display: grid;
       grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 2fr 48px;
       gap: 8px;
-      border-bottom: 1px solid #f1f5f9;
       font-size: 12px;
       align-items: start;
       min-height: 44px;
@@ -238,6 +239,19 @@
     }
 
     .table-row .col {
+      border:#6ca6f8 1px solid;
+      border-radius: 20px;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+      padding: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    .table-row .col1 {
+      padding: 3px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -262,6 +276,13 @@
       white-space: nowrap;
       flex: 1;
       min-width: 0;
+    }
+    
+    .description-cell {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .cell-content .expanded {
@@ -523,7 +544,7 @@
       /* Tablet behavior: stack search inputs vertically */
       .search-container {
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: 10px;
       }
 
       /* Align function buttons to the right in a horizontal row */
@@ -542,16 +563,34 @@
       
       .search-section {
         flex-direction: row;
-        align-items: flex-end;
+        align-items: flex-start;
         gap: 24px;
+        position: relative;
       }
       
       .search-container {
         flex: 1;
       }
+            .search-box {
+        max-width: 300px;
+        position: relative;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+      
+      .toolbar {
+        margin-left: auto;
+        margin-top: 0;
+        position: absolute;
+        top: 0;
+        right: 0;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+      }
     }
 
-    /* Medium screens (md) - 768px and up */
     @media (min-width: 768px) {
       .content {
         padding: 24px;
@@ -565,6 +604,48 @@
       .toolbar-text {
         display: inline;
       }
+      
+      .search-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        gap: 20px;
+      }
+      
+      .search-container {
+        max-width: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .search-box {
+        max-width: 300px;
+        position: relative;
+        background: rgb(255, 255, 255);
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+      
+      .toolbar {
+        display: flex;
+        gap: 8px;
+        margin-left: auto;
+        align-items: center;
+        position: static;
+        justify-content: center;
+
+      }
+      
+      .toolbar-btn {
+        min-width: 100px;
+        height: 40px;
+        padding: 0 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
 
     /* Large screens (lg) - 1024px and up */
@@ -575,6 +656,11 @@
       
       .search-section {
         margin-bottom: 32px;
+      }
+      
+      /* Keep the same layout as medium screens */
+      .search-container {
+        max-width: 300px;
       }
     }
 
@@ -622,6 +708,7 @@
       }
     }
 
+
     @media (max-width: 639px) {
       .search-container {
         grid-template-columns: 1fr;
@@ -631,9 +718,23 @@
       .search-section {
         gap: 16px;
       }
-      
+
       .content {
         padding: 16px;
+      }
+      .toolbar {
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        width: 100%;
+        padding: 8px 0;
+      }
+      
+      @media (min-width: 540px) and (max-width: 639px) {
+        .toolbar {
+          gap: 100px;
+        }
       }
       
       .table-header,
@@ -762,6 +863,7 @@
       .hamburger-btn {
         display: none;
       }
+      
     }
 
     /* Animation for dropdown */
