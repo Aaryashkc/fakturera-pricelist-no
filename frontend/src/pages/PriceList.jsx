@@ -3,7 +3,6 @@ import {
   Menu, 
   Search, 
   Plus, 
-  Archive, 
   Settings, 
   FileText, 
   Users, 
@@ -24,14 +23,13 @@ import {
 } from 'lucide-react';
 import usePriceStore from '../store/usePriceStore';
 
-// Hoisted to avoid remounts that cause input focus loss on each keystroke
 const SearchSection = ({ searchArticle, setSearchArticle, searchProduct, setSearchProduct }) => (
   <div className="search-section">
     <div className="search-container">
       <div className="search-box">
         <input 
           type="text" 
-          placeholder="Search Article No ..."
+          placeholder="Search Article No..."
           value={searchArticle}
           onChange={(e) => setSearchArticle(e.target.value)}
         />
@@ -40,7 +38,7 @@ const SearchSection = ({ searchArticle, setSearchArticle, searchProduct, setSear
       <div className="search-box">
         <input 
           type="text" 
-          placeholder="Search Product ..."
+          placeholder="Search Product..."
           value={searchProduct}
           onChange={(e) => setSearchProduct(e.target.value)}
         />
@@ -48,22 +46,19 @@ const SearchSection = ({ searchArticle, setSearchArticle, searchProduct, setSear
       </div>
     </div>
     
-    <div className="toolbar" >
-      <div className='btn-round'>
-      <button className="toolbar-btn new-btn">
+    <div className="toolbar">
+      <button className="toolbar-btn new-btn" title="Add New Product">
         <Plus size={16} />
+        <span className="toolbar-text">New</span>
       </button>
-      </div>
-      <div className='btn-round'>
-      <button className="toolbar-btn">
+      <button className="toolbar-btn" title="Export to File">
         <FileText size={16} />
+        <span className="toolbar-text">Export</span>
       </button>
-      </div>
-      <div className='btn-round'>
-      <button className="toolbar-btn">
+      <button className="toolbar-btn" title="Settings">
         <Settings size={16} />
+        <span className="toolbar-text">Settings</span>
       </button>
-      </div>
     </div>
   </div>
 );
@@ -140,38 +135,33 @@ const PriceList = () => {
   const ProductDetailsModal = () => {
     if (!showDetailsModal || !selectedProduct) return null;
 
-    const dialogId = `details-modal-${selectedProduct.id}`;
-    const titleId = `details-modal-title-${selectedProduct.id}`;
     const modalRef = useRef(null);
-    const firstFocusableRef = useRef(null);
+    const closeBtnRef = useRef(null);
     const previouslyFocusedElementRef = useRef(null);
 
     useEffect(() => {
       previouslyFocusedElementRef.current = document.activeElement;
-      // Focus the first focusable element when modal opens
-      const timer = setTimeout(() => {
-        firstFocusableRef.current?.focus();
-      }, 0);
+      closeBtnRef.current?.focus();
 
       const handleKeyDown = (e) => {
         if (e.key === 'Escape') {
-          e.stopPropagation();
           setShowDetailsModal(false);
         }
 
         // Focus trap
         if (e.key === 'Tab' && modalRef.current) {
           const focusable = modalRef.current.querySelectorAll(
-            'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            'button:not([disabled]), input:not([disabled])'
           );
           const first = focusable[0];
           const last = focusable[focusable.length - 1];
+          
           if (e.shiftKey && document.activeElement === first) {
             e.preventDefault();
-            last.focus();
+            last?.focus();
           } else if (!e.shiftKey && document.activeElement === last) {
             e.preventDefault();
-            first.focus();
+            first?.focus();
           }
         }
       };
@@ -179,10 +169,19 @@ const PriceList = () => {
       document.addEventListener('keydown', handleKeyDown, true);
       return () => {
         document.removeEventListener('keydown', handleKeyDown, true);
-        // Restore focus to the previously focused trigger
         previouslyFocusedElementRef.current?.focus?.();
       };
     }, []);
+
+    const productDetails = [
+      { label: 'Article No', value: selectedProduct.id },
+      { label: 'Product/Service', value: selectedProduct.name },
+      { label: 'In Price', value: selectedProduct.inPrice },
+      { label: 'Price', value: selectedProduct.price },
+      { label: 'Unit', value: selectedProduct.unit },
+      { label: 'In Stock', value: selectedProduct.inStock },
+      { label: 'Description', value: selectedProduct.description }
+    ];
 
     return (
       <div className="modal-overlay" onClick={() => setShowDetailsModal(false)}>
@@ -191,50 +190,30 @@ const PriceList = () => {
           className="modal-content"
           role="dialog"
           aria-modal="true"
-          aria-labelledby={titleId}
-          id={dialogId}
+          aria-labelledby="modal-title"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="modal-header">
-            <h3 id={titleId}>Product Details</h3>
+            <h3 id="modal-title">Product Details</h3>
             <button
+              ref={closeBtnRef}
               onClick={() => setShowDetailsModal(false)}
               aria-label="Close details"
-              ref={firstFocusableRef}
+              className="modal-close-btn"
             >
               <X size={20} />
             </button>
           </div>
+          
           <div className="modal-body">
-            <div className="detail-row">
-              <span className="detail-label">Article No:</span>
-              <span className="detail-value">{selectedProduct.id}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Product/Service:</span>
-              <span className="detail-value">{selectedProduct.name}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">In Price:</span>
-              <span className="detail-value">{selectedProduct.inPrice}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Price:</span>
-              <span className="detail-value">{selectedProduct.price}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Unit:</span>
-              <span className="detail-value">{selectedProduct.unit}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">In Stock:</span>
-              <span className="detail-value">{selectedProduct.inStock}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Description:</span>
-              <span className="detail-value">{selectedProduct.description}</span>
-            </div>
+            {productDetails.map(({ label, value }) => (
+              <div key={label} className="detail-row">
+                <span className="detail-label">{label}:</span>
+                <span className="detail-value">{value}</span>
+              </div>
+            ))}
           </div>
+          
           <div className="modal-actions">
             <button className="modal-btn edit-btn">
               <Edit3 size={16} />
@@ -250,44 +229,48 @@ const PriceList = () => {
     );
   };
 
-  const ActionDropdown = ({ product, position = 'bottom-right', detailsOpen }) => {
+  const ActionDropdown = ({ product }) => {
     const [isOpen, setIsOpen] = useState(false);
     const triggerRef = useRef(null);
     const menuRef = useRef(null);
-    const menuId = `action-menu-${product.id}`;
-    const detailsId = `details-modal-${product.id}`;
 
     useEffect(() => {
-      const onDocClick = (e) => {
-        if (!menuRef.current || !triggerRef.current) return;
-        if (!menuRef.current.contains(e.target) && !triggerRef.current.contains(e.target)) {
+      const handleClickOutside = (e) => {
+        if (menuRef.current && !menuRef.current.contains(e.target) && 
+            triggerRef.current && !triggerRef.current.contains(e.target)) {
           setIsOpen(false);
         }
       };
-      const onKey = (e) => {
+
+      const handleKeyDown = (e) => {
         if (e.key === 'Escape') setIsOpen(false);
       };
-      document.addEventListener('mousedown', onDocClick);
-      document.addEventListener('keydown', onKey);
+
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+      
       return () => {
-        document.removeEventListener('mousedown', onDocClick);
-        document.removeEventListener('keydown', onKey);
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('keydown', handleKeyDown);
       };
     }, []);
 
     useEffect(() => {
       if (isOpen && menuRef.current) {
-        const firstItem = menuRef.current.querySelector('button');
-        firstItem?.focus();
+        menuRef.current.querySelector('button')?.focus();
       }
     }, [isOpen]);
 
-    const onTriggerKeyDown = (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        setIsOpen((v) => !v);
-      }
+    const handleAction = (action) => {
+      handleProductAction(product, action);
+      setIsOpen(false);
     };
+
+    const actions = [
+      { icon: Eye, label: 'View Details', action: 'details', size: 18 },
+      { icon: Edit3, label: 'Edit', action: 'edit', size: 14 },
+      { icon: Trash2, label: 'Delete', action: 'delete', size: 14 }
+    ];
 
     return (
       <div className="action-dropdown">
@@ -295,41 +278,31 @@ const PriceList = () => {
           ref={triggerRef}
           className="action-trigger"
           aria-haspopup="menu"
-          aria-expanded={detailsOpen}
-          aria-controls={detailsId}
+          aria-expanded={isOpen}
           onClick={() => setIsOpen(!isOpen)}
-          onKeyDown={onTriggerKeyDown}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setIsOpen(!isOpen);
+            }
+          }}
         >
           <MoreHorizontal size={16} />
         </button>
+        
         {isOpen && (
-          <div ref={menuRef} className={`dropdown-menu ${position}`} role="menu" id={menuId}>
-            <button 
-              id={`view-details-btn-${product.id}`}
-              className="view-details-btn"
-              role="menuitem" 
-              onClick={() => {
-                handleProductAction(product, 'details');
-                setIsOpen(false);
-              }}
-            >
-              <Eye size={18} />
-              <span>View Details</span>
-            </button>
-            <button role="menuitem" onClick={() => {
-              handleProductAction(product, 'edit');
-              setIsOpen(false);
-            }}>
-              <Edit3 size={14} />
-              Edit
-            </button>
-            <button role="menuitem" onClick={() => {
-              handleProductAction(product, 'delete');
-              setIsOpen(false);
-            }}>
-              <Trash2 size={14} />
-              Delete
-            </button>
+          <div ref={menuRef} className="dropdown-menu" role="menu">
+            {actions.map(({ icon: Icon, label, action, size }) => (
+              <button 
+                key={action}
+                className={`dropdown-item ${action === 'details' ? 'view-details-btn' : ''}`}
+                role="menuitem" 
+                onClick={() => handleAction(action)}
+              >
+                <Icon size={size} />
+                <span>{label}</span>
+              </button>
+            ))}
           </div>
         )}
       </div>
@@ -430,10 +403,7 @@ const PriceList = () => {
               <div className="col border-row">{renderCellContent(product, 'inStock', product.inStock)}</div>
               <div className="col border-row">{renderCellContent(product, 'description', product.description)}</div>
               <div className="col1">
-                <ActionDropdown
-                  product={product}
-                  detailsOpen={showDetailsModal && selectedProduct?.id === product.id}
-                />
+                <ActionDropdown product={product} />
               </div>
             </div>
           ))
